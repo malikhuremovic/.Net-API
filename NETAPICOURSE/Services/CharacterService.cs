@@ -2,6 +2,7 @@
 using AutoMapper;
 using dotnet_rpg.DTOs.Character;
 using dotnet_rpg.Models;
+using System.ComponentModel;
 
 namespace dotnet_rpg.Services
 {
@@ -44,7 +45,16 @@ namespace dotnet_rpg.Services
         public async Task<ServiceResponse<GetCharacterDto>> ModifyCharacter(ModifyCharacterDto newCharacter)
         {
             int index = characters.FindIndex(c => c.Id == newCharacter.Id);
-            characters[index] = _mapper.Map<Character>(newCharacter);
+            characters[index] = new Character
+            {
+                Id = characters[index].Id,
+                Name = String.IsNullOrEmpty(newCharacter.Name) ? characters[index].Name : newCharacter.Name,
+                HitPoints = newCharacter.HitPoints > 0 ? newCharacter.HitPoints : characters[index].HitPoints,
+                Strength = newCharacter.Strength > 0 ? newCharacter.Strength : characters[index].Strength,
+                Defense = newCharacter.Defense > 0 ? newCharacter.Defense : characters[index].Defense,
+                Intelligence = newCharacter.Intelligence > 0 ? newCharacter.Intelligence : characters[index].Intelligence,
+                Class = ((int)newCharacter.Class) > 0 ? newCharacter.Class : characters[index].Class
+            };
             return new ServiceResponse<GetCharacterDto> { Data = _mapper.Map<GetCharacterDto>(characters[index]) };
         }
 

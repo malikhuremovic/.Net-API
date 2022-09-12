@@ -9,7 +9,7 @@ namespace NETAPICOURSE
         {
             CreateMap<Character, GetCharacterDto>();
             CreateMap<AddCharacterDto, Character>();
-            CreateMap<ModifyCharacterDto, Character>();
+            CreateMap<ModifyCharacterDto, Character>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }
