@@ -1,7 +1,9 @@
 ﻿
 using AutoMapper;
+using dotnet_rpg.Data;
 using dotnet_rpg.DTOs.Character;
 using dotnet_rpg.Models;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 
 namespace dotnet_rpg.Services
@@ -14,24 +16,30 @@ namespace dotnet_rpg.Services
             new Character { Id = 1, Name = "Sam" }
         };
         private readonly IMapper _mapper;
+        private readonly DataContext _context;
 
-        public CharacterService(IMapper mapper)
+        public CharacterService(IMapper mapper, DataContext context)
         {
             _mapper = mapper;
+            _context = context;
         }
 
         public async Task<ServiceResponse<List<GetCharacterDto>>> AddCharacter(AddCharacterDto character)
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
-            Character temp_character = _mapper.Map<Character>(character);
-            temp_character.Id = characters.Max(c => c.Id + 1);
-            serviceResponse.Data = characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
+            Character tempCharacter = _mapper.Map<Character>(character);
+            _context.Characters.Add(tempCharacter);
+            await _context.SaveChangesAsync();
+            serviceResponse.Data = await _context.Characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
             return serviceResponse;
         }
 
         public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters()
         {
-            return new ServiceResponse<List<GetCharacterDto>> { Data = characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList() };
+            var response = new ServiceResponse<List<GetCharacterDto>>();
+            var dbCharacters = await _context.Characters.ToListAsync();
+            response.Data = dbCharacters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
+            return response;
         }
 
         public async Task<ServiceResponse<GetCharacterDto>> GetCharacterById(int id)
@@ -39,8 +47,8 @@ namespace dotnet_rpg.Services
             var serviceResponse = new ServiceResponse<GetCharacterDto>();
             try
             {
-                var character = characters.Find(c => c.Id == id);
-                if(character is Character)
+                var character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == id);
+                if(character != null)
                 {
                     serviceResponse.Data = _mapper.Map<GetCharacterDto>(character);
                 }
@@ -62,19 +70,29 @@ namespace dotnet_rpg.Services
             var serviceResponse= new ServiceResponse<GetCharacterDto>();
             try
             {
-                int index = characters.FindIndex(c => c.Id == newCharacter.Id);
-                characters[index] = new Character
+                var character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == newCharacter.Id);
+                if (character != null)
                 {
-                    Id = characters[index].Id,
-                    Name = String.IsNullOrEmpty(newCharacter.Name) ? characters[index].Name : newCharacter.Name,
-                    HitPoints = newCharacter.HitPoints >= 0 ? newCharacter.HitPoints : characters[index].HitPoints,
-                    Strength = newCharacter.Strength >= 0 ? newCharacter.Strength : characters[index].Strength,
-                    Defense = newCharacter.Defense >= 0 ? newCharacter.Defense : characters[index].Defense,
-                    Intelligence = newCharacter.Intelligence >= 0 ? newCharacter.Intelligence : characters[index].Intelligence,
-                    Class = ((int)newCharacter.Class) > 0 ? newCharacter.Class : characters[index].Class
-                };
-                serviceResponse.Data = _mapper.Map<GetCharacterDto>(characters[index]);
-                serviceResponse.Message = "You have successfully modified a character with ID: " + newCharacter.Id;
+                    character.Name = String.IsNullOrEmpty(newCharacter.Name) ? character.Name : newCharacter.Name;
+                    character.HitPoints = newCharacter.HitPoints >= 0 ? newCharacter.HitPoints : character.HitPoints;
+                    character.Strength = newCharacter.Strength >= 0 ? newCharacter.Strength : character.Strength;
+                    character.Defense = newCharacter.Defense >= 0 ? newCharacter.Defense : character.Defense;
+                    character.Intelligence = newCharacter.Intelligence >= 0 ? newCharacter.Intelligence : character.Intelligence;
+                    character.Class = ((int)newCharacter.Class) > 0 ? newCharacter.Class : character.Class;
+                }
+                else
+                {
+                    throw new Exception("No character with ID: " + newCharacter.Id + " was found.");
+                }
+                try {
+                    await _context.SaveChangesAsync();
+                    serviceResponse.Data = _mapper.Map<GetCharacterDto>(character);
+                    serviceResponse.Message = "You have successfully modified a character with ID: " + newCharacter.Id;
+                }
+                catch(Exception exc)
+                {
+                    serviceResponse.Message = exc.Message;
+                }
             }
             catch(Exception exc)
             {
@@ -89,8 +107,10 @@ namespace dotnet_rpg.Services
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
             try {
-                characters.RemoveAt(characters.FindIndex(c => c.Id == id));
-                serviceResponse.Data = characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
+                _context.Characters.Remove(await _context.Characters.FirstAsync(c => c.Id == id));
+                await _context.SaveChangesAsync();
+                var dbCharacters = await _context.Characters.ToListAsync();
+                serviceResponse.Data = dbCharacters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
                 serviceResponse.Message = "You have successfully deleted a characted with ID: " + id;
             }catch(Exception exc)
             {
