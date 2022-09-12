@@ -58,5 +58,12 @@ namespace dotnet_rpg.Services
             return new ServiceResponse<GetCharacterDto> { Data = _mapper.Map<GetCharacterDto>(characters[index]) };
         }
 
+        public async Task<ServiceResponse<List<GetCharacterDto>>> DeleteCharacter(int id)
+        {
+            characters.RemoveAt(characters.FindIndex(c => c.Id == id));
+            return new ServiceResponse<List<GetCharacterDto>> { Data = characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList() };
+        }
+
+
     }
 }
