@@ -1,4 +1,5 @@
 ﻿using dotnet_rpg.DTOs.Character;
+using dotnet_rpg.Models;
 using dotnet_rpg.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +24,12 @@ namespace dotNet_rpg.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceResponse<GetCharacterDto>>> GetSingle(int id)
         {
-            return Ok(await _characterService.GetCharacterById(id));
+            var response = await _characterService.GetCharacterById(id);
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
         }
 
         [HttpPost]
@@ -36,14 +42,23 @@ namespace dotNet_rpg.Controllers
         [HttpPut]
         public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> ModifySingle(ModifyCharacterDto character)
         {
-            await _characterService.ModifyCharacter(character);
-            return Ok(await _characterService.GetAllCharacters());
+            var response = await _characterService.ModifyCharacter(character);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
         }
 
         [HttpDelete]
         public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> DeleteSingle(int id)
         {
-            return Ok(_characterService.DeleteCharacter(id));
+            var response = await _characterService.DeleteCharacter(id);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
         }
 
 

@@ -37,31 +37,67 @@ namespace dotnet_rpg.Services
         public async Task<ServiceResponse<GetCharacterDto>> GetCharacterById(int id)
         {
             var serviceResponse = new ServiceResponse<GetCharacterDto>();
-            var character = characters.Find(c => c.Id == id);
-            serviceResponse.Data = _mapper.Map<GetCharacterDto>(character);
+            try
+            {
+                var character = characters.Find(c => c.Id == id);
+                if(character is Character)
+                {
+                    serviceResponse.Data = _mapper.Map<GetCharacterDto>(character);
+                }
+                else
+                {
+                    throw new Exception("Character with ID: " + id + " does not exist.");
+                }
+            }
+            catch(Exception exc)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = exc.Message;
+            }
             return serviceResponse;
         }
 
         public async Task<ServiceResponse<GetCharacterDto>> ModifyCharacter(ModifyCharacterDto newCharacter)
         {
-            int index = characters.FindIndex(c => c.Id == newCharacter.Id);
-            characters[index] = new Character
+            var serviceResponse= new ServiceResponse<GetCharacterDto>();
+            try
             {
-                Id = characters[index].Id,
-                Name = String.IsNullOrEmpty(newCharacter.Name) ? characters[index].Name : newCharacter.Name,
-                HitPoints = newCharacter.HitPoints >= 0 ? newCharacter.HitPoints : characters[index].HitPoints,
-                Strength = newCharacter.Strength >= 0 ? newCharacter.Strength : characters[index].Strength,
-                Defense = newCharacter.Defense >= 0 ? newCharacter.Defense : characters[index].Defense,
-                Intelligence = newCharacter.Intelligence >= 0 ? newCharacter.Intelligence : characters[index].Intelligence,
-                Class = ((int)newCharacter.Class) > 0 ? newCharacter.Class : characters[index].Class
-            };
-            return new ServiceResponse<GetCharacterDto> { Data = _mapper.Map<GetCharacterDto>(characters[index]) };
+                int index = characters.FindIndex(c => c.Id == newCharacter.Id);
+                characters[index] = new Character
+                {
+                    Id = characters[index].Id,
+                    Name = String.IsNullOrEmpty(newCharacter.Name) ? characters[index].Name : newCharacter.Name,
+                    HitPoints = newCharacter.HitPoints >= 0 ? newCharacter.HitPoints : characters[index].HitPoints,
+                    Strength = newCharacter.Strength >= 0 ? newCharacter.Strength : characters[index].Strength,
+                    Defense = newCharacter.Defense >= 0 ? newCharacter.Defense : characters[index].Defense,
+                    Intelligence = newCharacter.Intelligence >= 0 ? newCharacter.Intelligence : characters[index].Intelligence,
+                    Class = ((int)newCharacter.Class) > 0 ? newCharacter.Class : characters[index].Class
+                };
+                serviceResponse.Data = _mapper.Map<GetCharacterDto>(characters[index]);
+                serviceResponse.Message = "You have successfully modified a character with ID: " + newCharacter.Id;
+            }
+            catch(Exception exc)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = exc.Message;
+            }
+
+            return serviceResponse;
         }
 
         public async Task<ServiceResponse<List<GetCharacterDto>>> DeleteCharacter(int id)
         {
-            characters.RemoveAt(characters.FindIndex(c => c.Id == id));
-            return new ServiceResponse<List<GetCharacterDto>> { Data = characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList() };
+            var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
+            try {
+                characters.RemoveAt(characters.FindIndex(c => c.Id == id));
+                serviceResponse.Data = characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
+                serviceResponse.Message = "You have successfully deleted a characted with ID: " + id;
+            }catch(Exception exc)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = exc.Message;
+            }
+            return serviceResponse;
         }
 
 
