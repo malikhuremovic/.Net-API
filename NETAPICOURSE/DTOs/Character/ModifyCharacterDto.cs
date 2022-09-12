@@ -6,13 +6,13 @@
 
         public string Name { get; set; } = "";
 
-        public int HitPoints { get; set; }
+        public int HitPoints { get; set; } = -1;
 
-        public int Strength { get; set; }
+        public int Strength { get; set; } = -1;
 
-        public int Defense { get; set; }
+        public int Defense { get; set; } = -1; 
 
-        public int Intelligence { get; set; } 
+        public int Intelligence { get; set; } = -1; 
 
         public RpgClass Class { get; set; }
     }

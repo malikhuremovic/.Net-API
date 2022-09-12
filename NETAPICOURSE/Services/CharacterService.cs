@@ -49,10 +49,10 @@ namespace dotnet_rpg.Services
             {
                 Id = characters[index].Id,
                 Name = String.IsNullOrEmpty(newCharacter.Name) ? characters[index].Name : newCharacter.Name,
-                HitPoints = newCharacter.HitPoints > 0 ? newCharacter.HitPoints : characters[index].HitPoints,
-                Strength = newCharacter.Strength > 0 ? newCharacter.Strength : characters[index].Strength,
-                Defense = newCharacter.Defense > 0 ? newCharacter.Defense : characters[index].Defense,
-                Intelligence = newCharacter.Intelligence > 0 ? newCharacter.Intelligence : characters[index].Intelligence,
+                HitPoints = newCharacter.HitPoints >= 0 ? newCharacter.HitPoints : characters[index].HitPoints,
+                Strength = newCharacter.Strength >= 0 ? newCharacter.Strength : characters[index].Strength,
+                Defense = newCharacter.Defense >= 0 ? newCharacter.Defense : characters[index].Defense,
+                Intelligence = newCharacter.Intelligence >= 0 ? newCharacter.Intelligence : characters[index].Intelligence,
                 Class = ((int)newCharacter.Class) > 0 ? newCharacter.Class : characters[index].Class
             };
             return new ServiceResponse<GetCharacterDto> { Data = _mapper.Map<GetCharacterDto>(characters[index]) };
