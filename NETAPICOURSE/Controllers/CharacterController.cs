@@ -1,4 +1,5 @@
 ﻿using dotnet_rpg.DTOs.Character;
+using dotnet_rpg.DTOs.Skill;
 using dotnet_rpg.Models;
 using dotnet_rpg.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -57,6 +58,17 @@ namespace dotNet_rpg.Controllers
         public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> DeleteSingle(int id)
         {
             var response = await _characterService.DeleteCharacter(id);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpPost("Skill")]
+        public async Task<ActionResult<ServiceResponse<GetCharacterDto>>> AddCharacterSkill(AddCharacterSkillDto newCharacterSkill)
+        {
+            var response = await _characterService.AddCharacterSkill(newCharacterSkill);
             if (!response.Success)
             {
                 return BadRequest(response);

@@ -1,4 +1,5 @@
 ﻿
+using dotnet.DTOs.Skill;
 using dotnet_rpg.DTOs.Weapon;
 
 namespace dotnet_rpg.DTOs.Character
@@ -6,6 +7,7 @@ namespace dotnet_rpg.DTOs.Character
     public class GetCharacterDto
     {
         public int Id { get; set; }
+
         public string Name { get; set; } = "Frodo";
 
         public int HitPoints { get; set; } = 100;
@@ -19,5 +21,7 @@ namespace dotnet_rpg.DTOs.Character
         public RpgClass Class { get; set; } = RpgClass.Knight;
 
         public GetWeaponDto Weapon { get; set; }
+
+        public List<GetSkillDto> Skills { get; set; }
     }
 }
