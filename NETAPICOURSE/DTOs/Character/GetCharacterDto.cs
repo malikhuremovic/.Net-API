@@ -1,4 +1,7 @@
-﻿namespace dotnet_rpg.DTOs.Character
+﻿
+using dotnet_rpg.DTOs.Weapon;
+
+namespace dotnet_rpg.DTOs.Character
 {
     public class GetCharacterDto
     {
@@ -14,5 +17,7 @@
         public int Intelligence { get; set; } = 10;
 
         public RpgClass Class { get; set; } = RpgClass.Knight;
+
+        public GetWeaponDto Weapon { get; set; }
     }
 }

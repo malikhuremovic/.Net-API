@@ -34,7 +34,8 @@ namespace dotnet_rpg.Services
         public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters()
         {
             var response = new ServiceResponse<List<GetCharacterDto>>();
-            var dbCharacters = await _context.Characters.Where(c => c.User.Id == _userUtil.GetUserId()).ToListAsync();
+            var dbCharacters = await _context.Characters.Include("Weapon").Where(c => c.User.Id == _userUtil.GetUserId()).ToListAsync();
+            
             if(dbCharacters.Count == 0)
             {
                 response.Message = "No characters found for user with ID: " + _userUtil.GetUserId();
@@ -48,7 +49,7 @@ namespace dotnet_rpg.Services
             var serviceResponse = new ServiceResponse<GetCharacterDto>();
             try
             {
-                var character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == id && c.User.Id == _userUtil.GetUserId());
+                var character = await _context.Characters.Include("Weapon").FirstOrDefaultAsync(c => c.Id == id && c.User.Id == _userUtil.GetUserId());
                 if(character != null)
                 {
                     serviceResponse.Data = _mapper.Map<GetCharacterDto>(character);
@@ -88,6 +89,7 @@ namespace dotnet_rpg.Services
                 try {
                     await _context.SaveChangesAsync();
                     serviceResponse.Data = await _context.Characters
+                        .Include("Weapon")
                         .Where(c => c.User.Id == _userUtil.GetUserId())
                         .Select(c => _mapper.Map<GetCharacterDto>(c))
                         .ToListAsync();
@@ -118,6 +120,7 @@ namespace dotnet_rpg.Services
                     _context.Characters.Remove(character);
                     await _context.SaveChangesAsync();
                     serviceResponse.Data = serviceResponse.Data = await _context.Characters
+                            .Include("Weapon")
                             .Where(c => c.User.Id == _userUtil.GetUserId())
                             .Select(c => _mapper.Map<GetCharacterDto>(c))
                             .ToListAsync();
