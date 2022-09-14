@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Filters;
 using Microsoft.OpenApi.Models;
 using dotnet_rpg.Utils;
+using dotnet_rpg.Services.WeaponService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddSingleton<IGetUserUtil, GetUserUtil>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IWeaponService, WeaponService>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

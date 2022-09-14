@@ -12,8 +12,8 @@ using dotnet_rpg.Data;
 namespace NETAPICOURSE.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20220913073235_UserModel")]
-    partial class UserModel
+    [Migration("20220914101940_AllTablesMigration")]
+    partial class AllTablesMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -51,7 +51,12 @@ namespace NETAPICOURSE.Migrations
                     b.Property<int>("Strength")
                         .HasColumnType("int");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Characters");
                 });
@@ -79,6 +84,63 @@ namespace NETAPICOURSE.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("dotnet_rpg.Models.Weapon", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("CharacterId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Damage")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId")
+                        .IsUnique();
+
+                    b.ToTable("Weapons");
+                });
+
+            modelBuilder.Entity("dotnet_rpg.Models.Character", b =>
+                {
+                    b.HasOne("dotnet_rpg.Models.User", "User")
+                        .WithMany("Characters")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("dotnet_rpg.Models.Weapon", b =>
+                {
+                    b.HasOne("dotnet_rpg.Models.Character", "Character")
+                        .WithOne("Weapon")
+                        .HasForeignKey("dotnet_rpg.Models.Weapon", "CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Character");
+                });
+
+            modelBuilder.Entity("dotnet_rpg.Models.Character", b =>
+                {
+                    b.Navigation("Weapon")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("dotnet_rpg.Models.User", b =>
+                {
+                    b.Navigation("Characters");
                 });
 #pragma warning restore 612, 618
         }
