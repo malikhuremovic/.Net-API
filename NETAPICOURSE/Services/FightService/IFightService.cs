@@ -1,9 +1,12 @@
 ﻿using dotnet_rpg.DTOs.Fight;
+using NETAPICOURSE.DTOs.Fight;
 
 namespace dotnet_rpg.Services.FightService
 {
     public interface IFightService
     {
         Task<ServiceResponse<AttackResultDto>> WeaponAttack(WeaponAttackDto weaponAttack);
+
+        Task<ServiceResponse<SkillAttackResultDto>> SkillAttack(SkillAttackDto skillAttack);
     }
 }

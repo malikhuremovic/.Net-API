@@ -1,6 +1,7 @@
 ﻿using dotnet_rpg.DTOs.Fight;
 using dotnet_rpg.Services.FightService;
 using Microsoft.AspNetCore.Mvc;
+using NETAPICOURSE.DTOs.Fight;
 
 namespace dotnet_rpg.Controllers
 {
@@ -18,6 +19,12 @@ namespace dotnet_rpg.Controllers
         public async Task<ActionResult<ServiceResponse<AttackResultDto>>> WeaponAttack(WeaponAttackDto weaponAttack)
         {
             return Ok(await _fightService.WeaponAttack(weaponAttack));
+        }
+
+        [HttpPost("Skill")]
+        public async Task<ActionResult<ServiceResponse<SkillAttackResultDto>>> WeaponAttack(SkillAttackDto skillAttack)
+        {
+            return Ok(await _fightService.SkillAttack(skillAttack));
         }
     }
 }
