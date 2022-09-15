@@ -1,4 +1,5 @@
 ﻿using dotnet_rpg.DTOs.Character;
+using dotnet_rpg.DTOs.Fight;
 using dotnet_rpg.DTOs.Skill;
 
 namespace dotnet_rpg.Services

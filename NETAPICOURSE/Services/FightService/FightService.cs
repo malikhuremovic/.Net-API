@@ -5,15 +5,18 @@ using Microsoft.EntityFrameworkCore;
 using static System.Net.Mime.MediaTypeNames;
 using System.ComponentModel;
 using NETAPICOURSE.DTOs.Fight;
+using AutoMapper;
 
 namespace dotnet.Services.FightService
 {
     public class FightService : IFightService
     {
         private readonly DataContext _context;
-        public FightService(DataContext context)
+        private readonly IMapper _mapper;
+        public FightService(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
         public async Task<ServiceResponse<AttackResultDto>> WeaponAttack(WeaponAttackDto weaponAttack)
         {
@@ -190,7 +193,17 @@ namespace dotnet.Services.FightService
             }
             return response;
         }
+        public async Task<ServiceResponse<List<HighscoreDto>>> GetHighscore()
+        {
+            ServiceResponse<List<HighscoreDto>> response = new ServiceResponse<List<HighscoreDto>>();
+            var characters = await _context.Characters
+                .Where(c => c.Fights > 0)
+                .OrderByDescending(c => c.Victories)
+                .ThenBy(c => c.Defeats)
+                .ToListAsync();
 
-
+            response.Data = characters.Select(c => _mapper.Map<HighscoreDto>(c)).ToList();
+            return response;
+        }
     }
 }
